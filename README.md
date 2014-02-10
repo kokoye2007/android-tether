@@ -16,14 +16,14 @@
   Otherwise udev would not start a script.
 * Reload udev rules:
 
-    udevadm control --reload
+        udevadm control --reload
 
 * Attach your device.
 * Configure network:
 
-    ip addr add 192.168.42.130/24 dev usb0
-    ip route add default via 192.168.42.129 dev usb0
-    ip link set usb0 up
-    echo '77.88.8.7' > /etc/resolv.conf
+        ip addr add 192.168.42.130/24 dev usb0
+        ip route add default via 192.168.42.129 dev usb0
+        ip link set usb0 up
+        echo '77.88.8.7' > /etc/resolv.conf
 
 * Internet should work now.
