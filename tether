@@ -1,39 +1,110 @@
 #!/usr/bin/bash
-set -x
 
-# Set path to adb binary
-adb="/home/vmm/dev/opt/android-sdk-linux/platform-tools/adb"
+usage() {
+  echo "Android USB Tethering script"
+  echo 
+  echo "Usage: `basename $0` [options]"
+  echo "Options:"
+  echo 
+  echo "  -a  --adb      setup tethering through adb"
+  echo "  -na --no-adb   skip adb setup"
+  echo "  -n  --net      setup network interface"
+  echo "  -nn --no-net   skip network setup"
+  echo "  -v  --verbose  verbose output"
+  echo "  -h  --help     this help"
+  exit 1
+}
 
-# Enable Wi-Fi
-$adb shell svc wifi enable
+adb() {
+  # Set path to adb binary
+  local adb="/home/vmm/dev/opt/android-sdk-linux/platform-tools/adb"
 
-# Set MAC address for RNDIS interface
-#$adb shell 'echo "AA:BB:CC:DD:EE:FF" > /sys/class/android_usb/f_rndis/ethaddr'
+  # Enable Wi-Fi
+  $adb shell svc wifi enable
 
-# Enable USB tethering
-$adb shell setprop persist.sys.usb.config rndis,adb
+  # Set MAC address for RNDIS interface
+  #$adb shell 'echo "AA:BB:CC:DD:EE:FF" > /sys/class/android_usb/f_rndis/ethaddr'
 
-# Device is unavailable for 1 sec.
-sleep 2
+  # Enable USB tethering
+  $adb shell setprop persist.sys.usb.config rndis,adb
 
-# Set iptables rules
-# Got these strings from classes.dex inside tethering apk
-$adb shell iptables -A POSTROUTING -s 192.168.42.0/24 -j MASQUERADE -t nat
-$adb shell iptables -A FORWARD -j ACCEPT -i wlan0  -o rndis0
-$adb shell iptables -A FORWARD -j ACCEPT -i ccmni0 -o rndis0
-$adb shell iptables -A FORWARD -j ACCEPT -i ccmni1 -o rndis0
-$adb shell iptables -A FORWARD -j ACCEPT -i ccmni2 -o rndis0
-$adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o wlan0
-$adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni0
-$adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni1
-$adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni2
+  # Device is unavailable for 1 sec.
+  sleep 2
 
-# Configure RNDIS interface
-$adb shell ip addr add 192.168.42.129/24 dev rndis0
-$adb shell ip link set rndis0 up
+  # Set iptables rules
+  # Got these strings from classes.dex inside tethering apk
+  $adb shell iptables -A POSTROUTING -s 192.168.42.0/24 -j MASQUERADE -t nat
+  $adb shell iptables -A FORWARD -j ACCEPT -i wlan0  -o rndis0
+  $adb shell iptables -A FORWARD -j ACCEPT -i ccmni0 -o rndis0
+  $adb shell iptables -A FORWARD -j ACCEPT -i ccmni1 -o rndis0
+  $adb shell iptables -A FORWARD -j ACCEPT -i ccmni2 -o rndis0
+  $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o wlan0
+  $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni0
+  $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni1
+  $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni2
 
-# Apply iptables rules
-$adb shell iptables -P FORWARD ACCEPT
+  # Configure RNDIS interface
+  $adb shell ip addr add 192.168.42.129/24 dev rndis0
+  $adb shell ip link set rndis0 up
 
-# Enable IP forwarding
-$adb shell 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+  # Apply iptables rules
+  $adb shell iptables -P FORWARD ACCEPT
+
+  # Enable IP forwarding
+  $adb shell 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+}
+
+net() {
+  # Set up interface
+  ip route del default
+  ip route flush dev usb0
+  ip addr flush dev usb0
+  ip addr add 192.168.42.130/24 dev usb0
+  ip link set usb0 up
+  ip route add default via 192.168.42.129 dev usb0
+
+  # DNS should be pre-configured
+}
+
+
+# default options
+# udev runs this script with default options
+adb=1
+net=1
+verbose=0
+
+# cannot run net phase without root capabilities
+[[ $EUID -eq 0 ]] || net=0
+
+# parse options
+for opt do
+  optarg=`expr "x$opt" : 'x[^=]*=\(.*\)'`
+  case "$opt" in
+  -a|--adb)
+    adb=1
+    ;;
+  -na|--no-adb)
+    adb=0
+    ;;
+  -n|--net)
+    net=1
+    ;;
+  -nn|--no-net)
+    net=0
+    ;;
+  -v|--verbose)
+    verbose=1
+    ;;
+  -h|--help)
+    usage
+    ;;
+  *)
+    echo "Invalid option: $opt"
+    echo "Run '`basename $0` -h' for more information"
+    exit 1
+    ;;
+  esac
+done
+
+[[ $adb -gt 0 ]] && adb
+[[ $net -gt 0 ]] && net
