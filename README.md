@@ -19,15 +19,21 @@
         udevadm control --reload
 
 * Attach your device.
-* Configure network:
+* Configure DNS (once)
 
-        ip addr add 192.168.42.130/24 dev usb0
-        ip route add default via 192.168.42.129 dev usb0
-        ip link set usb0 up
-        echo '192.168.0.1' > /etc/resolv.conf
-
-  You can get addresses of DNS servers with:
+  You can get addresses of DNS servers on your device with:
 
         adb shell getprop net.dns{1-4}
+
+  Alternatively, use public DNS servers:
+
+        cat >> /etc/resolv.conf <<EOF
+        # Google Public DNS
+        nameserver 8.8.8.8
+        nameserver 8.8.4.4
+        # Яндекс.DNS
+        nameserver 77.88.8.8
+        nameserver 77.88.8.1
+        EOF
 
 * Internet should work now.
