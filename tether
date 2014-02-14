@@ -15,23 +15,29 @@ usage() {
   exit 1
 }
 
+debug() {
+  [[ $verbose -gt 0 ]] && echo "$@"
+}
+
 adb() {
+  debug "Setup tethering"
+
   # Set path to adb binary
   local adb="/home/vmm/dev/opt/android-sdk-linux/platform-tools/adb"
 
-  # Enable Wi-Fi
+  debug "Enable Wi-Fi"
   $adb shell svc wifi enable
 
-  # Set MAC address for RNDIS interface
+  #debug "Set MAC address for RNDIS interface"
   #$adb shell 'echo "AA:BB:CC:DD:EE:FF" > /sys/class/android_usb/f_rndis/ethaddr'
 
-  # Enable USB tethering
+  debug "Enable USB tethering"
   $adb shell setprop persist.sys.usb.config rndis,adb
 
   # Device is unavailable for 1 sec.
   sleep 2
 
-  # Set iptables rules
+  debug "Set iptables rules"
   # Got these strings from classes.dex inside tethering apk
   $adb shell iptables -A POSTROUTING -s 192.168.42.0/24 -j MASQUERADE -t nat
   $adb shell iptables -A FORWARD -j ACCEPT -i wlan0  -o rndis0
@@ -43,19 +49,19 @@ adb() {
   $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni1
   $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni2
 
-  # Configure RNDIS interface
+  debug "Configure RNDIS interface"
   $adb shell ip addr add 192.168.42.129/24 dev rndis0
   $adb shell ip link set rndis0 up
 
-  # Apply iptables rules
+  debug "Apply iptables rules"
   $adb shell iptables -P FORWARD ACCEPT
 
-  # Enable IP forwarding
+  debug "Enable IP forwarding"
   $adb shell 'echo 1 > /proc/sys/net/ipv4/ip_forward'
 }
 
 net() {
-  # Set up interface
+  debug "Set up interface"
   ip route del default
   ip route flush dev usb0
   ip addr flush dev usb0
