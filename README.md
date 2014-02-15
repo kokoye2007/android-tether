@@ -8,6 +8,9 @@
 
 ## Usage
 
+* Install (Android SDK)[http://developer.android.com/sdk] and set path to
+  `adb` binary in `tether` script.
+* Attach your Android device.
 * Get major and minor of your device with `lsusb` command:
 
         $ lsusb | grep HTC
@@ -23,7 +26,6 @@
 
         $ sudo make install
 
-* Attach your device.
 * Configure DNS (once).
 
   You can get DNS servers used by your device with:
@@ -41,4 +43,5 @@
         nameserver 77.88.8.1
         EOF
 
+* Re-attach device.
 * Internet should work now.
