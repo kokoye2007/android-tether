@@ -3,31 +3,36 @@
 ## Files
 
 * `tether` - script to start USB tethering
-* `tether2` - alternate method to start tethering (pressing checkbox in UI)
 * `51-android.rules` - udev rule to start tethering on device hotplug
+* `tether.service` - systemd service launched by udev
 
 ## Usage
 
-* Get vendor ID of your device with `lsusb` command.
-* Fix `idVendor` in `51-android.rules`.
-* Put `51-android.rules` to `/etc/udev/rules`.
-* Put `tether` script to `/usr/local/bin`.
-* Make sure first line of script points to valid shell (not symlink).
-  Otherwise udev would not start a script.
-* Reload udev rules:
+* Get major and minor of your device with `lsusb` command:
 
-        udevadm control --reload
+        $ lsusb | grep HTC
+        Bus 001 Device 088: ID 0bb4:0004 HTC (High Tech Computer Corp.)
+
+* Get product attribute for your device:
+
+        $ udevadm info -a -p $(udevadm info -q path -n /dev/bus/usb/001/088) | grep ATTR{product}
+            ATTR{product}=="ZP900S"
+
+* Set product attribute in `51-android.rules`.
+* Install script, systemd service and udev rules:
+
+        $ sudo make install
 
 * Attach your device.
-* Configure DNS (once)
+* Configure DNS (once).
 
-  You can get addresses of DNS servers on your device with:
+  You can get DNS servers used by your device with:
 
-        adb shell getprop net.dns{1-4}
+        $ adb shell getprop net.dns{1-4}
 
   Alternatively, use public DNS servers:
 
-        cat >> /etc/resolv.conf <<EOF
+        # cat >> /etc/resolv.conf <<EOF
         # Google Public DNS
         nameserver 8.8.8.8
         nameserver 8.8.4.4
@@ -37,10 +42,3 @@
         EOF
 
 * Internet should work now.
-
-## Notes
-
-* If you want to access adb from user, add it to adbusers group:
-
-        sudo groupadd adbusers
-        sudo gpasswd -a $USER adbusers
