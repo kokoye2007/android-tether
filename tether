@@ -10,6 +10,7 @@ usage() {
   echo "  -na --no-adb   skip adb setup"
   echo "  -n  --net      setup network interface"
   echo "  -nn --no-net   skip network setup"
+  echo "  -l  --log      enable logging"
   echo "  -v  --verbose  verbose output"
   echo "  -h  --help     this help"
   exit 1
@@ -77,6 +78,8 @@ net() {
 # udev runs this script with default options
 adb=1
 net=1
+# logging is useful for udev rules debugging
+log=0
 verbose=0
 
 # cannot run net phase without root capabilities
@@ -98,6 +101,10 @@ for opt do
   -nn|--no-net)
     net=0
     ;;
+  -l|--log)
+    log=1
+    verbose=1
+    ;;
   -v|--verbose)
     verbose=1
     ;;
@@ -112,5 +119,21 @@ for opt do
   esac
 done
 
-[[ $adb -gt 0 ]] && adb
-[[ $net -gt 0 ]] && net
+if [[ $log -gt 0 ]]; then
+  exec &>> /tmp/tether.log
+  echo "--------------------------------------------------"
+  echo "Starting tethering at $(date)"
+  printenv
+fi
+
+if [[ $adb -gt 0 ]]; then
+  adb
+else
+  debug "Skip tethering phase"
+fi
+
+if [[ $net -gt 0 ]]; then
+  net
+else
+  debug "Skip networing phase"
+fi
