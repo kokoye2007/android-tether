@@ -37,17 +37,17 @@ $adb shell iptables -P FORWARD ACCEPT
 echo "Enable IP forwarding"
 $adb shell 'echo 1 > /proc/sys/net/ipv4/ip_forward'
 
+
 # cannot run net phase without root capabilities
 [[ $EUID -eq 0 ]] || exit
 
 echo "Set up network interface"
 
-ip=/usr/bin/ip
-$ip route del default
-$ip route flush dev usb0
-$ip addr flush dev usb0
-$ip addr add 192.168.42.130/24 dev usb0
-$ip link set usb0 up
-$ip route add default via 192.168.42.129 dev usb0
+ip route del default 2>/dev/null || true
+ip route flush dev usb0
+ip addr flush dev usb0
+ip addr add 192.168.42.130/24 dev usb0
+ip link set usb0 up
+ip route add default via 192.168.42.129 dev usb0
 
 # DNS should be pre-configured
