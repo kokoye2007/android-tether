@@ -1,1 +1,1 @@
-SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0bb4", MODE="0660", GROUP="adbusers", RUN="/usr/local/bin/tether"
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0bb4", MODE="0660", GROUP="adbusers", RUN+="/usr/local/bin/tether"
