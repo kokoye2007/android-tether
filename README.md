@@ -37,3 +37,10 @@
         EOF
 
 * Internet should work now.
+
+## Notes
+
+* If you want to access adb from user, add it to adbusers group:
+
+        sudo groupadd adbusers
+        sudo gpasswd -a $USER adbusers
