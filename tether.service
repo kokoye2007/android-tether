@@ -1,0 +1,6 @@
+[Unit]
+Description=Android USB Tethering
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/tether

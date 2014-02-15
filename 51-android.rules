@@ -1,1 +1,18 @@
-SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="0bb4", MODE="0660", GROUP="adbusers", RUN+="/usr/local/bin/tether"
+# Skip this section below if this device is not connected by USB
+SUBSYSTEM!="usb", GOTO="android_usb_rules_end"
+
+# Devices listed here in android_usb_rules_{begin...end} are connected by USB
+LABEL="android_usb_rules_begin"
+
+# Zopo ZP900S
+ATTR{product}=="ZP900S", ENV{adb_user}="yes"
+
+# Enable device as a user device if found
+ENV{adb_user}=="yes", MODE="0660", GROUP="users"
+ENV{adb_user}=="yes", SYMLINK+="usb0"
+
+# Start tethering on device hotplug
+ACTION=="add", ENV{adb_user}=="yes", TAG+="systemd", ENV{SYSTEMD_WANTS}="tether.service"
+
+# Devices listed here {begin...end} are connected by USB
+LABEL="android_usb_rules_end"
