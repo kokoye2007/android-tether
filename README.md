@@ -8,7 +8,7 @@
 
 ## Usage
 
-* Install (Android SDK)[http://developer.android.com/sdk] and set path to
+* Install [Android SDK](http://developer.android.com/sdk) and set path to
   `adb` binary in `tether` script.
 * Attach your Android device.
 * Get major and minor of your device with `lsusb` command:
