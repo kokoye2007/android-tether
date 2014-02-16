@@ -48,6 +48,6 @@
 
 ## Related work
 
-[*] https://github.com/dpavlin/android-adb-usb-tether
-[*] https://github.com/ajasmin/android-linux-tethering
-[*] https://bugzilla.mozilla.org/show_bug.cgi?id=735547#c1
+* https://github.com/dpavlin/android-adb-usb-tether
+* https://github.com/ajasmin/android-linux-tethering
+* https://bugzilla.mozilla.org/show_bug.cgi?id=735547#c1
