@@ -1,7 +1,7 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # Set path to adb binary
-adb="/home/vmm/dev/opt/android-sdk-linux/platform-tools/adb"
+adb="/usr/bin/adb"
 
 echo "Enable Wi-Fi"
 $adb shell svc wifi enable
