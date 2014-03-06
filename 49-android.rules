@@ -8,7 +8,7 @@ LABEL="android_usb_rules_begin"
 ATTR{product}=="ZP900S", ENV{adb_user}="yes"
 
 # Enable device as a user device if found
-ENV{adb_user}=="yes", MODE="0660", GROUP="usb"
+ENV{adb_user}=="yes", MODE="0660", GROUP="adbusers"
 ENV{adb_user}=="yes", SYMLINK+="usb0"
 
 # Start tethering on device hotplug

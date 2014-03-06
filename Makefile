@@ -1,4 +1,4 @@
-rules=51-android.rules
+rules=49-android.rules
 service=tether.service
 script=tether
 

@@ -3,7 +3,7 @@
 ## Files
 
 * `tether` - script to start USB tethering
-* `51-android.rules` - udev rule to start tethering on device hotplug
+* `49-android.rules` - udev rule to start tethering on device hotplug
 * `tether.service` - systemd service launched by udev
 
 ## Usage
