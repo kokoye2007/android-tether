@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # Set path to adb binary
-adb="/opt/android-sdk/platform-tools/adb"
+# adb="/opt/android-sdk/platform-tools/adb"
+adb=$(which adb)
 
 echo "Enable Wi-Fi"
 $adb shell svc wifi enable
@@ -10,7 +11,7 @@ $adb shell svc wifi enable
 #$adb shell 'echo "AA:BB:CC:DD:EE:FF" > /sys/class/android_usb/f_rndis/ethaddr'
 
 echo "Enable USB tethering"
-$adb shell setprop persist.sys.usb.config rndis,adb
+$adb shell setprop persist.sys.usb.config adb,mass_storage,rndis
 
 # Device is unavailable for 1 sec.
 sleep 2
@@ -36,18 +37,3 @@ $adb shell iptables -P FORWARD ACCEPT
 
 echo "Enable IP forwarding"
 $adb shell 'echo 1 > /proc/sys/net/ipv4/ip_forward'
-
-
-# cannot run net phase without root capabilities
-[[ $EUID -eq 0 ]] || exit
-
-echo "Set up network interface"
-
-sudo ip route del default 2>/dev/null || true
-sudo ip route flush dev usb0
-sudo ip addr flush dev usb0
-sudo ip addr add 192.168.42.130/24 dev usb0
-sudo ip link set usb0 up
-sudo ip route add default via 192.168.42.129 dev usb0
-
-# DNS should be pre-configured

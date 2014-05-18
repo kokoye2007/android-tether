@@ -5,6 +5,8 @@
 * `tether` - script to start USB tethering
 * `49-android.rules` - udev rule to start tethering on device hotplug
 * `tether.service` - systemd service launched by udev
+* `tether.link` - networkd link configuration
+* `tether.network` - networkd interface configuration
 
 ## Usage
 
@@ -21,12 +23,9 @@
         $ udevadm info -a -p $(udevadm info -q path -n /dev/bus/usb/001/088) | grep ATTR{product}
             ATTR{product}=="ZP900S"
 
-* Set product attribute in `51-android.rules`.
-* Install script, systemd service and udev rules:
+* Set product attribute in `49-android.rules`.
 
-        $ sudo make install
-
-* Configure DNS (once).
+* Configure DNS.
 
   You can get DNS servers used by your device with:
 
@@ -34,14 +33,20 @@
 
   Alternatively, use public DNS servers:
 
-        # cat >> /etc/resolv.conf <<EOF
+        $ cat >> tether.network <<EOF
         # Google Public DNS
-        nameserver 8.8.8.8
-        nameserver 8.8.4.4
-        # Яндекс.DNS
-        nameserver 77.88.8.8
-        nameserver 77.88.8.1
+        DNS 8.8.8.8
+        DNS 8.8.4.4
         EOF
+
+* Install script, systemd service and udev rules:
+
+        $ sudo make install
+
+* Use networkd DNS configuration:
+
+        # rm -f /etc/resolv.conf
+        # ln -s ../run/systemd/network/resolv.conf /etc/resolv.conf
 
 * Re-attach device.
 * Internet should work now.

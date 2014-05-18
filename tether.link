@@ -1,0 +1,5 @@
+[Match]
+Driver=rndis_host
+
+[Link]
+Name=usb0
