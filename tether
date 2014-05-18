@@ -11,7 +11,7 @@ $adb shell svc wifi enable
 #$adb shell 'echo "AA:BB:CC:DD:EE:FF" > /sys/class/android_usb/f_rndis/ethaddr'
 
 echo "Enable USB tethering"
-$adb shell setprop persist.sys.usb.config adb,mass_storage,rndis
+$adb shell setprop persist.sys.usb.config mass_storage,rndis,adb
 
 # Device is unavailable for 1 sec.
 sleep 2
