@@ -4,14 +4,17 @@
 # adb="/opt/android-sdk/platform-tools/adb"
 adb=$(which adb)
 
-echo "Enable Wi-Fi"
-$adb shell svc wifi enable
+# echo "Enable Wi-Fi"
+# $adb shell svc wifi enable
+
+echo "Enable Mobile Data"
+$adb shell svc data enable
 
 #echo "Set MAC address for RNDIS interface"
 #$adb shell 'echo "AA:BB:CC:DD:EE:FF" > /sys/class/android_usb/f_rndis/ethaddr'
 
 echo "Enable USB tethering"
-$adb shell setprop persist.sys.usb.config mass_storage,rndis,adb
+$adb shell setprop persist.sys.usb.config rndis,adb
 
 # Device is unavailable for 1 sec.
 sleep 2
@@ -27,13 +30,12 @@ $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o wlan0
 $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni0
 $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni1
 $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni2
+$adb shell iptables -P FORWARD ACCEPT
 
 echo "Configure RNDIS interface"
+$adb shell ip addr flush dev rndis0
 $adb shell ip addr add 192.168.42.129/24 dev rndis0
 $adb shell ip link set rndis0 up
-
-echo "Apply iptables rules"
-$adb shell iptables -P FORWARD ACCEPT
 
 echo "Enable IP forwarding"
 $adb shell 'echo 1 > /proc/sys/net/ipv4/ip_forward'
