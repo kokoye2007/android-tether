@@ -10,6 +10,9 @@ ATTR{idVendor}=="04e8", ENV{adb_user}="yes"
 # Zopo ZP900S
 ATTR{product}=="ZP900S", ENV{adb_user}="yes"
 
+# Zopo ZP900S
+ATTR{manufacturer}=="U51GT_C4", ENV{adb_user}="yes"
+
 # Enable device as a user device if found
 ENV{adb_user}=="yes", MODE="0660", GROUP="usb"
 
