@@ -14,7 +14,7 @@ ATTR{product}=="ZP900S", ENV{adb_user}="yes"
 ENV{adb_user}=="yes", MODE="0660", GROUP="usb"
 
 # Start tethering on device hotplug
-ACTION=="add", ENV{adb_user}=="yes", TAG+="systemd", ENV{SYSTEMD_WANTS}="tether.service"
+#ACTION=="add", ENV{adb_user}=="yes", TAG+="systemd", ENV{SYSTEMD_WANTS}="tether.service"
 
 # Devices listed here {begin...end} are connected by USB
 LABEL="android_usb_rules_end"
