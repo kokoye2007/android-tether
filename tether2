@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #set -x
 
-adb="/home/vmm/dev/opt/android-sdk-linux/platform-tools/adb"
+adb=$(which adb)
 
 
 adb_check() {
@@ -63,28 +63,33 @@ wifi_disable() {
   $adb shell svc wifi disable
 }
 
+data_enable() {
+  $adb shell svc data enable
+}
+
+data_disable() {
+  $adb shell svc data disable
+}
+
 error() {
   echo $@
   exit 1
 }
 
 
-if ! adb_check
-then
+if ! adb_check ; then
   error "No android devices found, exiting.."
 fi
 
-wifi_enable
+data_enable
 
-if ! rndis_check
-then
+if ! rndis_check ; then
   echo "RNDIS not enabled, running tethering.."
   tether_toggle
 else
   echo "RNDIS already enabled"
 fi
 
-if ! rndis_check
-then
-  err "Failed to start USB tethering"
+if ! rndis_check ; then
+  error "Failed to start USB tethering"
 fi
