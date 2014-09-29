@@ -15,7 +15,7 @@ service:
 	systemctl daemon-reload
 
 script:
-	install -m755 ${script} /usr/local/bin/
+	install -m755 ${script} ~/bin
 
 link:
 	install -m644 ${link} /etc/systemd/network
@@ -32,6 +32,5 @@ uninstall:
 	systemctl daemon-reload
 	rm -f /etc/systemd/network/{${link},${network}}
 	systemctl restart systemd-networkd
-	rm -f /usr/local/bin/${script}
 
 .PHONY: rules service script link network install uninstall

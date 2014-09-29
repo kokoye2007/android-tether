@@ -5,19 +5,20 @@ SUBSYSTEM!="usb", GOTO="android_usb_rules_end"
 LABEL="android_usb_rules_begin"
 
 # Samsung GT-S5660
-ATTR{idVendor}=="04e8", ENV{adb_user}="yes"
+ATTR{idVendor}=="04e8", ENV{ADB_USER}="yes"
 
 # Zopo ZP900S
-ATTR{product}=="ZP900S", ENV{adb_user}="yes"
+ATTR{product}=="ZP900S", ENV{ADB_USER}="yes", ENV{TETHER_DEVICE}="zp900s"
 
-# Zopo ZP900S
-ATTR{manufacturer}=="U51GT_C4", ENV{adb_user}="yes"
+# Cube Talk 7X
+ATTR{manufacturer}=="U51GT_C4", ENV{ADB_USER}="yes", ENV{TETHER_DEVICE}="talk7x"
 
 # Enable device as a user device if found
-ENV{adb_user}=="yes", MODE="0660", GROUP="usb"
+#ENV{ADB_USER}=="yes", SYMLINK+="libmtp-%k", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1", GROUP="usb", MODE="0666"
+ENV{ADB_USER}=="yes", GROUP="usb", MODE="0660"
 
 # Start tethering on device hotplug
-#ACTION=="add", ENV{adb_user}=="yes", TAG+="systemd", ENV{SYSTEMD_WANTS}="tether.service"
+ACTION=="add", ENV{TETHER_DEVICE}=="?*", TAG+="systemd", ENV{SYSTEMD_WANTS}="tether@%E{TETHER_DEVICE}.service"
 
 # Devices listed here {begin...end} are connected by USB
 LABEL="android_usb_rules_end"

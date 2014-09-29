@@ -2,5 +2,5 @@
 Description=Android USB Tethering
 
 [Service]
-Type=simple
-ExecStart=/usr/local/bin/tether
+User=cimv2
+ExecStart=/home/cimv2/bin/tether %I

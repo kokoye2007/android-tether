@@ -1,41 +1,153 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # Set path to adb binary
 # adb="/opt/android-sdk/platform-tools/adb"
+# adb="$HOME/dev/opt/android-sdk-linux/platform-tools/adb"
 adb=$(which adb)
 
-# echo "Enable Wi-Fi"
-# $adb shell svc wifi enable
+error() {
+  echo $@
+  exit 1
+}
 
-echo "Enable Mobile Data"
-$adb shell svc data enable
+adb_check() {
+  for i in `seq 1 10`
+  do
+    $adb devices 2>/dev/null | grep device$ >/dev/null && return 0
+    echo -n "."
+    sleep 1
+  done
+  return 1
+}
 
-#echo "Set MAC address for RNDIS interface"
-#$adb shell 'echo "AA:BB:CC:DD:EE:FF" > /sys/class/android_usb/f_rndis/ethaddr'
+rndis_enabled() {
+  if $adb shell getprop sys.usb.config | grep rndis >/dev/null ; then
+    return 0
+  else
+    return 1
+  fi
+}
 
-echo "Enable USB tethering"
-$adb shell setprop persist.sys.usb.config rndis,adb
+wifi_enable() {
+  echo "Enable Wi-Fi"
+  $adb shell svc wifi enable
+}
 
-# Device is unavailable for 1 sec.
-sleep 2
+wifi_disable() {
+  echo "Disable Wi-Fi"
+  $adb shell svc wifi disable
+}
 
-echo "Set iptables rules"
-# Got these strings from classes.dex inside tethering apk
-$adb shell iptables -A POSTROUTING -s 192.168.42.0/24 -j MASQUERADE -t nat
-$adb shell iptables -A FORWARD -j ACCEPT -i wlan0  -o rndis0
-$adb shell iptables -A FORWARD -j ACCEPT -i ccmni0 -o rndis0
-$adb shell iptables -A FORWARD -j ACCEPT -i ccmni1 -o rndis0
-$adb shell iptables -A FORWARD -j ACCEPT -i ccmni2 -o rndis0
-$adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o wlan0
-$adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni0
-$adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni1
-$adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni2
-$adb shell iptables -P FORWARD ACCEPT
+data_enable() {
+  echo "Enable Mobile Data"
+  $adb shell svc data enable
+}
 
-echo "Configure RNDIS interface"
-$adb shell ip addr flush dev rndis0
-$adb shell ip addr add 192.168.42.129/24 dev rndis0
-$adb shell ip link set rndis0 up
+data_disable() {
+  echo "Disable Mobile Data"
+  $adb shell svc data disable
+}
 
-echo "Enable IP forwarding"
-$adb shell 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+rndis_init() {
+  #echo "Set MAC address for RNDIS interface"
+  #$adb shell 'echo "AA:BB:CC:DD:EE:FF" > /sys/class/android_usb/f_rndis/ethaddr'
+
+  echo "Enable USB tethering"
+  $adb shell setprop sys.usb.config rndis,adb
+
+  # Device is unavailable for 1 sec.
+  sleep 2
+
+  echo "Set iptables rules"
+  # Got these strings from classes.dex inside tethering apk
+  $adb shell iptables -A POSTROUTING -s 192.168.42.0/24 -j MASQUERADE -t nat
+  $adb shell iptables -A FORWARD -j ACCEPT -i wlan0  -o rndis0
+  $adb shell iptables -A FORWARD -j ACCEPT -i ccmni0 -o rndis0
+  $adb shell iptables -A FORWARD -j ACCEPT -i ccmni1 -o rndis0
+  $adb shell iptables -A FORWARD -j ACCEPT -i ccmni2 -o rndis0
+  $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o wlan0
+  $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni0
+  $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni1
+  $adb shell iptables -A FORWARD -j ACCEPT -i rndis0 -o ccmni2
+  $adb shell iptables -P FORWARD ACCEPT
+
+  echo "Configure RNDIS interface"
+  $adb shell ip addr flush dev rndis0
+  $adb shell ip addr add 192.168.42.129/24 dev rndis0
+  $adb shell ip link set rndis0 up
+
+  echo "Enable IP forwarding"
+  $adb shell 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+}
+
+tether_toggle() {
+  # http://stackoverflow.com/questions/13850192/how-to-lock-android-screen-via-adb
+  if [ "$(adb shell dumpsys power | grep mScreenOn= | grep -oE '(true|false)')" == false ] ; then
+    $adb shell input keyevent 26 # wakeup
+    $adb shell input keyevent 82 # unlock
+  fi
+
+  # go home
+  $adb shell input keyevent 3
+
+  # open tethering settings
+  $adb shell am start -a android.intent.action.MAIN -n com.android.settings/.TetherSettings
+
+  # wait 1 second to start activity
+  sleep 1
+
+  # move up - this always select first list item
+  $adb shell input keyevent 19
+
+  # move down - select "USB tethering"
+  $adb shell input keyevent 20
+
+  # toggle checkbox
+  $adb shell input keyevent 66
+
+  # alternatively, tap checkbox
+  #$adb shell input tap 400 300
+
+  # adb shell is unavailable for ~1 sec
+  sleep 2
+
+  # return home
+  $adb shell input keyevent 3
+
+  # turn off the screen
+  $adb shell input keyevent 26
+}
+
+tether_enable() {
+  if rndis_enabled ; then
+    echo "Tethering already enabled"
+    return
+  fi
+
+  echo "Toggle tethering checkbox"
+  tether_toggle
+}
+
+
+
+# Main program
+
+if ! adb_check ; then
+  error "No android devices found, exiting.."
+fi
+
+data_enable
+
+case $1 in
+  zp900s)
+    echo "Found ZP900S phone, bringing up RNDIS interface.."
+    rndis_init
+    ;;
+  talk7z)
+    echo "Found Cube Talk 7X tablet, enabling tethering.."
+    tether_enable
+    ;;
+  *)
+    tether_enable
+    ;;
+esac
