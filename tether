@@ -143,7 +143,7 @@ case $1 in
     echo "Found ZP900S phone, bringing up RNDIS interface.."
     rndis_init
     ;;
-  talk7z)
+  talk7x)
     echo "Found Cube Talk 7X tablet, enabling tethering.."
     tether_enable
     ;;
