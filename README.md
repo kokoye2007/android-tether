@@ -5,8 +5,12 @@
 * `tether` - script to start USB tethering
 * `49-android.rules` - udev rule to start tethering on device hotplug
 * `tether.service` - systemd service launched by udev
-* `tether.link` - networkd link configuration
-* `tether.network` - networkd interface configuration
+* `usb0.link` - systemd-networkd link configuration
+* `usb0.network` - systemd-networkd interface configuration
+
+## Prerequisites
+
+Linux machine running systemd+udev+networkd+resolved
 
 ## Usage
 
@@ -43,10 +47,9 @@
 
         $ sudo make install
 
-* Use networkd DNS configuration:
+* Use systemd-networkd DNS configuration:
 
-        # rm -f /etc/resolv.conf
-        # ln -s ../run/systemd/network/resolv.conf /etc/resolv.conf
+        # ln -sf ../run/systemd/network/resolv.conf /etc/resolv.conf
 
 * Re-attach device.
 * Internet should work now.
