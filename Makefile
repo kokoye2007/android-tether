@@ -15,7 +15,7 @@ service:
 	systemctl daemon-reload
 
 script:
-	install -m755 ${script} ~/bin
+	install -m755 ${script} ${SUDO_USER}/bin
 
 link:
 	install -m644 ${link} /etc/systemd/network
