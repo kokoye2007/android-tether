@@ -1,8 +1,8 @@
 rules=49-android.rules
 service=tether.service
 script=tether
-link=tether.link
-network=tether.network
+link=usb0.link
+network=usb0.network
 
 install: rules service script link network
 
