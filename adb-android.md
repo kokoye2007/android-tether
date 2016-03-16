@@ -85,6 +85,16 @@ This command sends the event that unlocks the lockscreen on the device. It can b
     adb shell svc data disable
     adb shell svc wifi enable
     adb shell svc wifi disable
+   
+>other command
+>    
+    help     Show information about the subcommands
+    power    Control the power manager
+    data     Control mobile data connectivity
+    wifi     Control the Wi-Fi manager
+    usb      Control Usb state
+    nfc      Control NFC functions
+
 
 ##Input
 
