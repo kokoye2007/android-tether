@@ -109,6 +109,7 @@ Insert text:
 ### Event Code
 
     adb shell input keyevent 26
+
 >(26 ---> POWER_BUTTON)
 
     0 -->  "KEYCODE_0" 
@@ -230,7 +231,7 @@ To find the exact X,Y position you want to Tap go to:
 
 we utilise the same command for a swipe to emulate a long press
 
->in this example X=100, Y=500, Duration = 250ms
+>   in this example X=100, Y=500, Duration = 250ms
 
 ###tip
 
@@ -263,8 +264,8 @@ we utilise the same command for a swipe to emulate a long press
     dumpsys <service>
 
 >example
-	>   
-	 adb shell dumpsys media.player
+>   
+    adb shell dumpsys media.player
 
 
 All about detail 
