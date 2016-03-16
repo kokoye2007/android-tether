@@ -41,6 +41,7 @@ Use the `install` command to install an apk, the optional `-r` argument reinstal
 >
     adb shell am start -n com.growingwiththeweb.example/.MainActivity
     adb shell am start -n com.growingwiththeweb.example/com.growingwiththeweb.example.MainActivity
+    
 ##Launch the default browser at a URL
 	  
 	adb shell am start -a android.intent.action.VIEW -d URL
