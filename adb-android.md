@@ -222,6 +222,16 @@ we utilise the same command for a swipe to emulate a long press
 
 >in this example X=100, Y=500, Duration = 250ms
 
+###tip
+
+>Notification – Show the list of notifications
+
+	adb shell input swipe     10 10 10 1000
+
+>CloseNotification – Close the notification list
+
+	adb shell input swipe     10 1000 10 10
+
 ##Service 
 
 #### Service
