@@ -232,6 +232,11 @@ we utilise the same command for a swipe to emulate a long press
 
 	adb shell input swipe     10 1000 10 10
 
+>OpenPatternLock – Open for Pattern Lock Drawer 
+	
+	adb shell input swipe     100 500 100 1450 100
+
+
 ##Service 
 
 #### Service
